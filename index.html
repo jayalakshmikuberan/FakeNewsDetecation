@@ -1,0 +1,45 @@
+<!DOCTYPE html>
+<html>
+<head>
+    <link rel="stylesheet.css" type="text/css" href="{{ url_for('static', filename='style.css') }}">
+</head>
+<body>
+    <h1>Fake News Checker</h1>
+    <input type="text" id="urlInput" placeholder="Enter article URL">
+    <button onclick="analyze()">Analyze</button>
+    <div id="result"></div>
+
+    <script>
+        async function analyze() {
+            const url = document.getElementById('urlInput').value;
+            const response = await fetch('/analyze', {
+                method: 'POST',
+                headers: {
+                    'Content-Type': 'application/json'
+                },
+                body: JSON.stringify({ url: url })
+            });
+            const data = await response.json();
+            displayResult(data);
+        }
+
+        function displayResult(data) {
+            const resultDiv = document.getElementById('result');
+            if (data.error) {
+                resultDiv.textContent = `Error: ${data.error}`;
+            } else {
+                let resultText = `
+                    <h2>Analysis Result for ${data.url}</h2>
+                    <p>Headline: ${data.headline}</p>
+                    <p>Article Text: ${data.article_text}</p>
+                    <p>Sentiment: ${data.sentiment}</p>
+                    <p>Clickbait: ${data.clickbait ? 'Likely' : 'Not Likely'}</p>
+                    <p>Source Credibility: ${data.source_credibility}</p>
+                    <p>${data.message}</p>
+                `;
+                resultDiv.innerHTML = resultText;
+            }
+        }
+    </script>
+</body>
+</html>
